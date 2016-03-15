@@ -1,4 +1,4 @@
-module register(clk, rst, w_en, data_in);
+module register(clk, rst, w_en, data_in,data);
 begin
 
   input clk, rst, w_en;
