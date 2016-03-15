@@ -7,7 +7,7 @@ begin
 
   reg [0:numBits - 1] op3;
 
-  always@(posedge clk or negedge rst) begin
+  always@(*) begin
     if(rst == 1'b0) begin
       op3 <= numBits'd0;
     end else begin
