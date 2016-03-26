@@ -1,5 +1,15 @@
-module register_file(clk, rst, w_en, addr_a, addr_b, add_c, data_a, data_b, data_c);
-begin
+module register_file
+(
+  clk, 
+  rst, 
+  w_en, 
+  addr_a, 
+  addr_b, 
+  addr_c, 
+  data_a, 
+  data_b, 
+  data_c
+);
 
   parameter addr_size = 4;
 
@@ -111,4 +121,38 @@ begin
     4'hf:
       data_b = dataF;
   endcase
+
+  case(addr_b) begin
+    4'h0:
+      data_b = data0;
+    4'h1:
+      data_b = data1;
+    4'h2:
+      data_b = data2;
+    4'h3:
+      data_b = data3;
+    4'h4:
+      data_b = data4;
+    4'h5:
+      data_b = data5;
+    4'h6:
+      data_b = data6;
+    4'h7:
+      data_b = data7;
+    4'h8:
+      data_b = data8;
+    4'h9:
+      data_b = data9;
+    4'ha:
+      data_b = dataA;
+    4'hb:
+      data_b = dataB;
+    4'hd:
+      data_b = dataC;
+    4'he:
+      data_b = dataD;
+    4'hf:
+      data_b = dataF;
+  endcase
+
 end

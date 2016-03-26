@@ -1,33 +1,45 @@
-module alu(clk,rst,operator,op1,op2,op3);
+module alu(clk,rst,operator,op1,op2,out,status);
 begin
   parameter numBits = 16;
-  parameter operatorSize = 3;
+  parameter operatorSize = 4;
   wire [0:operatorSize - 1] operator;
   wire [0:numBits - 1] op1,op2;
 
-  reg [0:numBits - 1] op3;
+  reg [0:numBits - 1] out, status;
 
   always@(*) begin
     if(rst == 1'b0) begin
-      op3 <= numBits'd0;
+      out <= numBits'd0;
     end else begin
       case(operator)
       operatorSize'h0: // ADD
-        op3 <= op1 + op2;
+        out <= op1 + op2;
       operatorSize'h1: // SUB
-        op3 <= op1 - op2;
+        out <= op1 - op2;
       operatorSize'h2: // MULT
-        op3 <= op1 * op2;
+        out <= op1 * op2;
       operatorSize'h3: // NAND
-        op3 <= op1 ~& op2;
+        out <= op1 ~& op2;
       operatorSize'h4: // DIV
-        op3 <= op1 / op2;
+        out <= op1 / op2;
       operatorSize'h5: // MOD
-        op3 <= op1 % op2;
-      operatorSize'h6: // ROTL
-        op3 <= {op1[numBits-2:1], op1[numBits -1] };
-      operatorSize'h7: // NOP
-        op3 <= numBits'd0;
+        out <= op1 % op2;
+      operatorSize'h6: // LESS THAN 
+        out <= op1 < op2;
+      operatorSize'h7: // LESS THAN OR EQUAL
+        out <= op1 <= op2;
+      default:  // NOP
+        out <= numbits'd0;
      endcase
     end
+  end
+
+  always@(posedge clk or negedge rst) begin
+    if(rst == 1'b0) begin
+      status = numBits'd0;
+    end else begin 
+      status <= out;
+    end
+  end
+
 end
