@@ -1,26 +1,30 @@
-// 4-State Mealy state machine
-
-// A Mealy machine has outputs that depend on both the state and 
-// the inputs.  When the inputs change, the outputs are updated
-// immediately, without waiting for a clock edge.  The outputs
-// can be written more than once per state or per clock cycle.
-
-module mealy_mac
+module control_fsm
 (
-	input	clk, data_in, reset,
-	output reg [1:0] data_out
+	input	clk, reset,
 );
-  // Declare bit widths
-  parameter alu_op_size = 4;
-	// Declare state register
-	reg		[1:0]state;
-	
+  
+  // Define bit widths
+  `define alu_op_size 4
+	   
+  reg	[3:0] state;
+  reg [15:0] instruction, pc;
+
 	// Declare states
-  parameter ADD = 0, ADDI = 1, SUB = 2, SUBI = 3, MULT = 4, SW = 5, LW = 6, LT = 7, NAND = 8, DIV = 9, MOD = 10, LTE = 11,     BLT = 12, BGE = 13, BEQ = 14, JUMP = 15, FETCH = 16, BLT2 = 17, BGE2 = 18, BEQ2 = 19;	
+  parameter ADD = 0, ADDI = 1, SUB = 2, SUBI = 3, MULT = 4, SW = 5, LW = 6, LT = 7, NAND = 8, DIV = 9, MOD = 10, LTE = 11, BLT = 12, BGE = 13, BEQ = 14, JUMP = 15, FETCH = 16, BLT2 = 17, BGE2 = 18, BEQ2 = 19;	
+
+  // assign the different fields of the instruction
+  assign op_code = instrucion[15:12];
+  assign op1 = instruction[3:0];
+  assign op2 = instruction[7:4];
+  assign op3 = instruction[11:8];
+  assign im = instruction[3:0];
+  assign jump = instruction[11:0];
+
+
 
   // Determine the next state synchronously, based on the
 	// current state and the input
-	always @ (posedge clk or posedge reset) begin
+	always @ (posedge clk or negedge reset) begin
 		if (reset)
 			state <= FETCH;
 		else
@@ -38,7 +42,9 @@ module mealy_mac
         MULT:
           state <= FETCH;
         SW:
+          state <= FETCH;
         LW:
+          state <= FETCH;
         LT:
           state <= FETCH;
         NAND:
@@ -70,7 +76,7 @@ module mealy_mac
     
     // Determine the output based only on the current state
 	// and the input (do not wait for a clock edge).
-	always @ (state or data_in)
+	always @ (*)
 	begin
 		case (state)
       FETCH:
@@ -118,7 +124,7 @@ module mealy_mac
         im_en <= 1'b0;
         pc <= pc + 16'd1;
       SW:
-        reg_addr_a <= 4'hx; // dont care, the immed field is used
+        reg_addr_a <= op3; // output the data, will not go throguh alu because of immed field
         reg_addr_b <= op2; // op2 is the pointer
         reg_addr_c <= 4'hx; // dont care
         reg_we <= 1'b0;
@@ -126,8 +132,8 @@ module mealy_mac
         im_en <= 1'b1;
         // statement to choose sram addr
         sram_we_n <= 1'b0;
-        sram_dq <= // port A
-
+        sram_dq <= regA;// port A
+        pc <= pc + 16'd1;
       LW:
         reg_addr_a <= 4'hx; // dont care, the immed field is used
         reg_addr_b <= op2; // op2 is the pointer
@@ -137,8 +143,8 @@ module mealy_mac
         im_en <= 1'b1;
         // statement to choose sram addr
         sram_we_n <= 1'b1;
-        sram_dq <= // port A
-
+        sram_dq <= regA;// port A
+        pc <= pc + 16'd1;
       LT:
         reg_addr_a <= op1;
         reg_addr_b <= op2;
