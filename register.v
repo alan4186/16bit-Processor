@@ -1,5 +1,5 @@
 module register(clk, rst, w_en, data_in,data);
-begin
+
 
   input clk, rst, w_en;
   input [15:0] data_in;
@@ -16,4 +16,4 @@ begin
       end
     end
   end // end always
-end
+endmodule
