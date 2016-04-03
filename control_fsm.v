@@ -1,7 +1,7 @@
 module control_fsm
 (
   input	clk, reset,
-  input [15:0] sram_d, regA, alu_status,
+  input [15:0] sram_d, regA, regB, alu_status,
   
   output reg sram_we_n, reg_we, im_en,
   output reg [2:0] alu_op,
@@ -88,212 +88,215 @@ module control_fsm
     // Determine the output based only on the current state
 	// and the input (do not wait for a clock edge).
 	always @ (*) begin
-//   pc = 16'd0;
-//	  instruction = 16'd0;
-//   sram_addr = 16'd0;
-//	  sram_we_n = 1'b1;
-//	  reg_addr_a = 4'hf;
-//	  reg_addr_b = 4'd0;
-//	  reg_addr_c = 4'd0;
-//	  reg_we = 1'b0;
-//	  alu_op = `alu_op_size'd0;
-//	  im_en = 1'b0;
-//	  sram_q = 16'd0;
+   pc = 16'hffff;
+	instruction = 16'hf000; // jump to 0
+   sram_addr = 16'hffff;
+	  sram_we_n = 1'b1;
+	  reg_addr_a = 4'hf;
+	  reg_addr_b = 4'hf;
+	  reg_addr_c = 4'hf;
+	  reg_we = 1'b0;
+	  alu_op = `alu_op_size'd0;
+	  im_en = 1'b0;
+	  sram_q = 16'hffff;
+	  regC = 16'hffff;
 	  
 		case (state)
       FETCH: begin
-        instruction <= sram_d;
-        sram_addr <= pc;
-        sram_we_n <= 1'b1;
-		  pc <= pc;
+        instruction = sram_d;
+        sram_addr = pc;
+        sram_we_n = 1'b1;
+		  pc = pc;
 		  end
 		ADD: begin
-		  reg_addr_a <= op1;
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h0;
-        im_en <= 1'b0;  
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+		  reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h0;
+        im_en = 1'b0;  
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
 		ADDI: begin
-        reg_addr_a <= 4'hx; // dont care
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h0;
-        im_en <=1'b1;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+        reg_addr_a = 4'hx; // dont care
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h0;
+        im_en = 1'b1;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
 		SUB: begin
-		  reg_addr_a <= op1;
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h1;
-        im_en <= 1'b0;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+		  reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h1;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
 		SUBI: begin
-        reg_addr_a <= 4'hx; // dont care
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h1;
-        im_en <=1'b1;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+        reg_addr_a = 4'hx; // dont care
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h1;
+        im_en =1'b1;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
       MULT: begin
-  	    reg_addr_a <= op1;
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h2;
-        im_en <= 1'b0;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+  	    reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h2;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
       SW: begin
-        reg_addr_a <= op3; // output the data, will not go throguh alu because of immed field
-        reg_addr_b <= op2; // op2 is the pointer
-        reg_addr_c <= 4'hx; // dont care
-        reg_we <= 1'b0;
-        alu_op <= `alu_op_size'h0;
-        im_en <= 1'b1;
+        reg_addr_a = op3; // output the data, will not go throguh alu because of immed field
+        reg_addr_b = op2; // op2 is the pointer
+        reg_addr_c = 4'hx; // dont care
+        reg_we = 1'b0;
+        alu_op = `alu_op_size'h0;
+        im_en = 1'b1;
         // statement to choose sram addr
-        sram_we_n <= 1'b0;
-        sram_q <= regA;// port A
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+        sram_we_n = 1'b0;
+        sram_q = regA;// port A
+		  sram_addr = regB;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
       LW:begin
-        reg_addr_a <= 4'hx; // dont care, the immed field is used
-        reg_addr_b <= op2; // op2 is the pointer
-        reg_addr_c <= op3; // op3 is the register addr to load into
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h0;
-        im_en <= 1'b1;
+        reg_addr_a = 4'hx; // dont care, the immed field is used
+        reg_addr_b = op2; // op2 is the pointer
+        reg_addr_c = op3; // op3 is the register addr to load into
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h0;
+        im_en = 1'b1;
         // statement to choose sram addr
-        sram_we_n <= 1'b1;
-        regC <= sram_d;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+        sram_we_n = 1'b1;
+        regC = sram_d;
+		  sram_addr = regB;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
       LT: begin
-        reg_addr_a <= op1;
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h6;
-        im_en <= 1'b0;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+        reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h6;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
       NAND: begin
-  	    reg_addr_a <= op1;
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h3;
-        im_en <= 1'b0;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+  	    reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h3;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
       DIV: begin 
-		  reg_addr_a <= op1;
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h4;
-        im_en <= 1'b0;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+		  reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h4;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
       MOD: begin
-        reg_addr_a <= op1;
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h5;
-        im_en <= 1'b0;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+        reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h5;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
       LTE: begin
-        reg_addr_a <= op1;
-        reg_addr_b <= op2;
-        reg_addr_c <= op3;
-        reg_we <= 1'b1;
-        alu_op <= `alu_op_size'h7;
-        im_en <= 1'b0;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
+        reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h7;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
 		  end
       BLT: begin
-        reg_addr_a <= op3;
-        reg_addr_b <= op2;
-        reg_addr_c <= 4'hx;
-        reg_we <= 1'b0;
-        alu_op <= `alu_op_size'h6;
-        im_en <= 1'b0;
-		  pc <= pc;
-		  instruction <= instruction;
+        reg_addr_a = op3;
+        reg_addr_b = op2;
+        reg_addr_c = 4'hx;
+        reg_we = 1'b0;
+        alu_op = `alu_op_size'h6;
+        im_en = 1'b0;
+		  pc = pc;
+		  instruction = instruction;
 		  end
       BGE: begin
-        reg_addr_a <= op3;
-        reg_addr_b <= op2;
-        reg_addr_c <= 4'hx;
-        reg_we <= 1'b0;
-        alu_op <= `alu_op_size'h7;
-        im_en <= 1'b0;
-		  pc <= pc;
-		  instruction <= instruction;
+        reg_addr_a = op3;
+        reg_addr_b = op2;
+        reg_addr_c = 4'hx;
+        reg_we = 1'b0;
+        alu_op = `alu_op_size'h7;
+        im_en = 1'b0;
+		  pc = pc;
+		  instruction = instruction;
 		  end
       BEQ: begin
-        reg_addr_a <= op3;
-        reg_addr_b <= op2;
-        reg_addr_c <= 4'hx;
-        reg_we <= 1'b0;
-        alu_op <= `alu_op_size'h1;
-        im_en <= 1'b0;
-		  pc <= pc;
-		  instruction <= instruction;
+        reg_addr_a = op3;
+        reg_addr_b = op2;
+        reg_addr_c = 4'hx;
+        reg_we = 1'b0;
+        alu_op = `alu_op_size'h1;
+        im_en = 1'b0;
+		  pc = pc;
+		  instruction = instruction;
 		  end
       JUMP: begin
-        pc <= pc + jump;
-		  instruction <= instruction;
+        pc = pc + jump;
+		  instruction = instruction;
 		  end
       BLT2: begin
         if(alu_status == 16'd1) begin
-          pc <= pc + {12'd0, im};
+          pc = pc + {12'd0, im};
         end else begin 
-          pc <= pc + 16'd1;
+          pc = pc + 16'd1;
 		  end
-		  instruction <= instruction;
+		  instruction = instruction;
 		end
       BGE2: begin
         if(alu_status == 16'd1) begin
-          pc <= pc + {12'd0, im};
+          pc = pc + {12'd0, im};
         end else begin
-          pc <= pc + 16'd1;
+          pc = pc + 16'd1;
 		  end
-		  instruction <= instruction;
+		  instruction = instruction;
 		end
       BEQ2: begin
         if(alu_status == 16'd0) begin
-          pc <= pc + {12'd0, im};
+          pc = pc + {12'd0, im};
         end else begin
-          pc <= pc + 16'd1;
+          pc = pc + 16'd1;
 		  end
-		  instruction <= instruction;
+		  instruction = instruction;
 		end
       default: begin
-        pc <= 16'd0; // reset program
-		  instruction <= instruction;
+        pc = 16'd0; // reset program
+		  instruction = instruction;
 		end
 		endcase
 end
