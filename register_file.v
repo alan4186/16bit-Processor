@@ -11,7 +11,7 @@ module register_file
   data_c
 );
 
-  parameter addr_size = 4;
+  parameter addr_size <= 4;
 
   input clk, rst, w_en;
 
@@ -55,104 +55,105 @@ module register_file
   assign w_en13 = (addr_c == 4'hd) ? 1'b1 : 1'b0; 
   assign w_en14 = (addr_c == 4'he) ? 1'b1 : 1'b0; 
   assign w_en15 = (addr_c == 4'hf) ? 1'b1 : 1'b0;
-
+  always@(*) begin
   case(addr_a) begin
     4'h0:
-      data_a = data0;
+      data_a <= data0;
     4'h1:
-      data_a = data1;
+      data_a <= data1;
     4'h2:
-      data_a = data2
+      data_a <= data2
     4'h3:
-      data_a = data3;
+      data_a <= data3;
     4'h4:
-      data_a = data4;
+      data_a <= data4;
     4'h5:
-      data_a = data5;
+      data_a <= data5;
     4'h6:
-      data_a = data6;
+      data_a <= data6;
     4'h7:
-      data_a = data7;
+      data_a <= data7;
     4'h8:
-      data_a = data8;
+      data_a <= data8;
     4'h9:
-      data_a = data9;
+      data_a <= data9;
     4'ha:
-      data_a = dataA;
+      data_a <= dataA;
     4'hb:
-      data_a = dataB;
+      data_a <= dataB;
     4'hd:
-      data_a = dataC;
+      data_a <= dataC;
     4'he:
-      data_a = dataD;
+      data_a <= dataD;
     4'hf:
-      data_a = dataF;
+      data_a <= dataF;
   endcase
   
   case(addr_b) begin
     4'h0:
-      data_b = data0;
+      data_b <= data0;
     4'h1:
-      data_b = data1;
+      data_b <= data1;
     4'h2:
-      data_b = data2;
+      data_b <= data2;
     4'h3:
-      data_b = data3;
+      data_b <= data3;
     4'h4:
-      data_b = data4;
+      data_b <= data4;
     4'h5:
-      data_b = data5;
+      data_b <= data5;
     4'h6:
-      data_b = data6;
+      data_b <= data6;
     4'h7:
-      data_b = data7;
+      data_b <= data7;
     4'h8:
-      data_b = data8;
+      data_b <= data8;
     4'h9:
-      data_b = data9;
+      data_b <= data9;
     4'ha:
-      data_b = dataA;
+      data_b <= dataA;
     4'hb:
-      data_b = dataB;
+      data_b <= dataB;
     4'hd:
-      data_b = dataC;
+      data_b <= dataC;
     4'he:
-      data_b = dataD;
+      data_b <= dataD;
     4'hf:
-      data_b = dataF;
+      data_b <= dataF;
   endcase
-
-  case(addr_b) begin
+  if(w_en == 1'b1) 
+  case(addr_c) begin
     4'h0:
-      data_b = data0;
+      data_b <= data0;
     4'h1:
-      data_b = data1;
+      data_b <= data1;
     4'h2:
-      data_b = data2;
+      data_b <= data2;
     4'h3:
-      data_b = data3;
+      data_b <= data3;
     4'h4:
-      data_b = data4;
+      data_b <= data4;
     4'h5:
-      data_b = data5;
+      data_b <= data5;
     4'h6:
-      data_b = data6;
+      data_b <= data6;
     4'h7:
-      data_b = data7;
+      data_b <= data7;
     4'h8:
-      data_b = data8;
+      data_b <= data8;
     4'h9:
-      data_b = data9;
+      data_b <= data9;
     4'ha:
-      data_b = dataA;
+      data_b <= dataA;
     4'hb:
-      data_b = dataB;
+      data_b <= dataB;
     4'hd:
-      data_b = dataC;
+      data_b <= dataC;
     4'he:
-      data_b = dataD;
+      data_b <= dataD;
     4'hf:
-      data_b = dataF;
+      data_b <= dataF;
   endcase
+end
 
 end
