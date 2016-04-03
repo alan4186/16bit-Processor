@@ -1,6 +1,9 @@
 module control_fsm
 (
 	input	clk, reset,
+  input 
+
+  output reg [3:0]  reg_addr_a, reg_addr_b, reg_addr_c, al
 );
   
   // Define bit widths
@@ -8,6 +11,9 @@ module control_fsm
 	   
   reg	[3:0] state;
   reg [15:0] instruction, pc;
+
+  wire [3:0] op_code, op1, op2, op3, im;
+  wire [11:0] jump;
 
 	// Declare states
   parameter ADD = 0, ADDI = 1, SUB = 2, SUBI = 3, MULT = 4, SW = 5, LW = 6, LT = 7, NAND = 8, DIV = 9, MOD = 10, LTE = 11, BLT = 12, BGE = 13, BEQ = 14, JUMP = 15, FETCH = 16, BLT2 = 17, BGE2 = 18, BEQ2 = 19;	
