@@ -73,10 +73,12 @@ module register_file
       data_a <= dataA;
     4'hb:
       data_a <= dataB;
+	 4'hc:
+	   data_a <= dataC;
     4'hd:
-      data_a <= dataC;
-    4'he:
       data_a <= dataD;
+    4'he:
+      data_a <= dataE;
     4'hf:
       data_a <= dataF;
   endcase
@@ -106,10 +108,12 @@ module register_file
       data_b <= dataA;
     4'hb:
       data_b <= dataB;
+	 4'hc:
+	   data_b <= dataC;
     4'hd:
-      data_b <= dataC;
-    4'he:
       data_b <= dataD;
+    4'he:
+      data_b <= dataE;
     4'hf:
       data_b <= dataF;
   endcase

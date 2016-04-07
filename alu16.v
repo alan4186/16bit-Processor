@@ -1,4 +1,4 @@
-module alu(
+module alu16(
 
   input clk,rst,
   input [3:0] operator, // will depend on operatorSize
