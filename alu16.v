@@ -1,45 +1,51 @@
-module alu(clk,rst,operator,op1,op2,out,status);
-begin
-  parameter numBits = 16;
-  parameter operatorSize = 4;
-  wire [0:operatorSize - 1] operator;
-  wire [0:numBits - 1] op1,op2;
+module alu(
 
-  reg [0:numBits - 1] out, status;
+  input clk,rst,
+  input [3:0] operator, // will depend on operatorSize
+  input[15:0] op1,op2,
+  
+  output reg [15:0] out, status
+  );
+  `define numBits 16
+  `define operatorSize 4
+
+  //wire [0:`operatorSize - 1] operator;
+  //wire signed [0:`numBits - 1] op1,op2;
+
+  //reg [0:`numBits - 1] out, status;
 
   always@(*) begin
     if(rst == 1'b0) begin
-      out <= numBits'd0;
+      out <= `numBits'd0;
     end else begin
       case(operator)
-      operatorSize'h0: // ADD
+      `operatorSize'h0: // ADD
         out <= op1 + op2;
-      operatorSize'h1: // SUB
+      `operatorSize'h1: // SUB
         out <= op1 - op2;
-      operatorSize'h2: // MULT
+      `operatorSize'h2: // MULT
         out <= op1 * op2;
-      operatorSize'h3: // NAND
-        out <= op1 ~& op2;
-      operatorSize'h4: // DIV
+      `operatorSize'h3: // NAND
+        out <= ~(op1 & op2);
+      `operatorSize'h4: // DIV
         out <= op1 / op2;
-      operatorSize'h5: // MOD
+      `operatorSize'h5: // MOD
         out <= op1 % op2;
-      operatorSize'h6: // LESS THAN 
+      `operatorSize'h6: // LESS THAN 
         out <= op1 < op2;
-      operatorSize'h7: // LESS THAN OR EQUAL
+      `operatorSize'h7: // LESS THAN OR EQUAL
         out <= op1 <= op2;
       default:  // NOP
-        out <= numbits'd0;
+        out <= `numBits'd0;
      endcase
     end
   end
 
   always@(posedge clk or negedge rst) begin
     if(rst == 1'b0) begin
-      status = numBits'd0;
+      status = `numBits'd0;
     end else begin 
       status <= out;
     end
   end
-
-end
+endmodule

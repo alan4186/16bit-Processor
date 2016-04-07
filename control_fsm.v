@@ -1,183 +1,304 @@
-module control_fsm(clk,rst, alu_operator, reg_file_addr_a, reg_file_addr_b, reg_file_addr_c, sram_dq);
-begin
+module control_fsm
+(
+  input	clk, reset,
+  input [15:0] sram_d, regA, regB, alu_status,
+  
+  output reg sram_we_n, reg_we, im_en,
+  output reg [2:0] alu_op,
+  output reg [3:0] reg_addr_a, reg_addr_b, reg_addr_c,
+  output reg [15:0] sram_addr, sram_q, regC
+  
+  
+ );
+  
+  // Define bit widths
+  `define alu_op_size 3
+	
+	// Declare states
+  parameter ADD = 5'd0, ADDI = 5'd1, SUB = 5'd2, SUBI = 5'd3, MULT = 5'd4, SW = 5'd5, LW = 5'd6, LT = 5'd7, NAND = 4'd8, DIV = 5'd9, MOD = 5'd10, LTE = 5'd11, BLT = 5'd12, BLE = 5'd13, BEQ = 5'd14, JUMP = 5'd15, FETCH = 5'd16, BLT2 = 5'd17, BLE2 = 5'd18, BEQ2 = 5'd19;	
+   
+  reg	[4:0] state;
+  reg [15:0] instruction, pc;
 
-parameter alu_operator_size = 3;
-parameter reg_file_addr_size = 4;
+  wire [3:0] op_code, op1, op2, op3, im;
+  wire [11:0] jump;
 
-input clk;
-input rst;
-
-output [alu_operator_size-1:0] alu_operator;
-output [reg_file_addr_size-1:0] reg_file_addr_a, reg_file_addr_b, reg_file_addr_c;
-
-reg [reg_file_addr_size-1:0] reg_file_addr_a, reg_file_addr_b, reg_file_addr_c;
-reg [alu_operator_size-1:0]  alu_operator;
-reg s, ns;
-
-
-  always@(posedge clk or negedge rst) begin
-    if(rst == 1'b0) begin
-      s <= 2'b00;
-      ns <= 2'b01;
-    end else begin
-      case(s) begin
-        2'd0: // fetch
-          ns <= 2'd1;
-        2'd1: // decode
-          ns <= 2'd2;
-        2'd2: // execute
-          ns <= 2'd3;
-        2'd3: // update
-          ns <= 2'd0;
-      endcase
-
-    end
-
-  always@(posedge clk or negedge rst) begin
-    if(rst == 1'b0) begin
-      alu_operator <= alu_operator_size'h7;
-      reg_file_addr_a <= reg_file_addr_size'd0;
-      reg_file_addr_b <= reg_file_addr_size'd0;
-      reg_file_addr_c <= reg_file_addr_size'd0;
-
-    end else begin
-      case(s) begin
-      2'd0: // fetch
-        sram_addr <= pc;
-        intr_reg <= sram_dq;
-      2'd1: // decode 
-        case({ count, op_code}) begin
-          4'h0: // ADD
-
-          4'h1: // ADDI
-
-          4'h2: // SUB
-
-          4'h3: // SUBI
-
-          4'h4: // MULT
-
-          4'h5: // SW
-
-          4'h6: // LW
-
-          4'h7: // LESS THAN
-
-          4'h8: // NAND
-
-          4'h9: // DIV
-
-          4'ha: // MOD
-
-          4'hb: // LESS THAN EQUAL
-
-          4'hc: // BLT
-
-          4'hd: // BGE
-
-          4'he: // BEQ
-
-          4'hf: // J
-
-        endcase
-
-        2'd2: // execute
-          case(op_code) begin
-            4'h0: // ADD
-              alu_operator <= alu_operator_size'h0;
-              reg_file_addr_a <= op1;
-              reg_file_addr_b <= op2;
-              reg_file_addr_c <= op3;
-            4'h1: // ADDI
-              alu_operator <= alu_operator_size'h0;
-              reg_file_addr_a <= op1;
-            4'h2: // SUB
-              alu_operator <= alu_operator_size'h1;
-              reg_file_addr_a <= op1;
-              reg_file_addr_b <= op2;
-              reg_file_addr_c <= op3;
-            4'h3: // SUBI
-              alu_operator <= alu_operator_size'h1;
-              reg_file_addr_a <= op1;
-            4'h4: // MULT
-              alu_operator <= alu_operator_size'h2;
-              reg_file_addr_a <= op1;
-              reg_file_addr_b <= op2;
-              reg_file_addr_c <= op3;
-            4'h5: // SW
-              alu_operator <= alu_operator_size'h0;
-              we_n <= 1'b0; // SRAM we_n
-              im_en <= 1'b1; // use the immed field for the ALU
-              reg_file_addr_a <= op1; // get the address
-              reg_file_addr_b <= op2; // get the data
-            4'h6: // LW
-              alu_operator <= alu_operator_size'h0;
-              we_n <= 1'b1;
-              im_en <= 1'b1;
-              reg_file_addr_a <= op1;
-              reg_file_addr_c <= op2;
-              reg_we <= 1'b1;
-            4'h7: //
-              alu_operator <= alu_operator_size'h7;
-              reg_file_addr_c <= op1;
-            4'h8: // NAND
-              alu_operator <= alu_operator_size'h3;
-              reg_file_addr_a <= op1;
-              reg_file_addr_b <= op2;
-              reg_file_addr_c <= op3;
-            4'h9: // DIV
-              alu_operator <= alu_operator_size'h4;
-              reg_file_addr_a <= op1;
-              reg_file_addr_b <= op2;
-              reg_file_addr_c <= op3;
-            4'ha: // MOD
-              alu_operator <= alu_operator_size'h5;
-              reg_file_addr_a <= op1;
-              reg_file_addr_b <= op2;
-              reg_file_addr_c <= op3;
-            4'hb: // ROTL
-              alu_operator <= alu_operator_size'h6;
-              reg_file_addr_a <= op1;
-              reg_file_addr_b <= op2;
-              reg_file_addr_c <= op3;
-            4'hc: // BLT
-              alu_operator <= alu_operator_size'h7;
-              
-            4'hd: // BGE
-              alu_operator <= alu_operator_size'h7;
-            4'he: // BEQ
-              alu_operator <= alu_operator_size'h7;
-
-            4'hf: // J
-              alu_operator <= alu_operator_size'h7;
-              npc <= pc + j;
-          endcase
-
-      2'd3: // update
-        case(op_code) begin
-          4'h5: // SW
-
-          4'h6: // LW
-
-          4'h7: //
+  // assign the different fields of the instruction
+  assign op_code = instruction[15:12];
+  assign op1 = instruction[3:0];
+  assign op2 = instruction[7:4];
+  assign op3 = instruction[11:8];
+  assign im = instruction[3:0];
+  assign jump = instruction[11:0];
 
 
-          4'hc: // BLT
 
-          4'hd: // BGE
-
-          4'he: // BEQ
-
-          4'hf: // J
-          
-          default:
-            pc <= npc;
-        endcase
-
-    endcase
-    endcase
-
-    end // end if else rst
-  end // end always
-
+  // Determine the next state synchronously, based on the
+	// current state and the input
+	always @ (posedge clk or negedge reset) begin
+		if (reset == 1'b0)
+			state <= FETCH;
+		else
+			case (state)
+        FETCH:
+          state <= {1'b0, op_code};
+				ADD:
+				  state <= FETCH;	
+				ADDI:
+					state <= FETCH;
+				SUB:
+				  state <= FETCH;	
+				SUBI:
+          state <= FETCH;					
+        MULT:
+          state <= FETCH;
+        SW:
+          state <= FETCH;
+        LW:
+          state <= FETCH;
+        LT:
+          state <= FETCH;
+        NAND:
+          state <= FETCH;
+        DIV:
+          state <= FETCH;
+        MOD:
+          state <= FETCH;
+        LTE:
+          state <= FETCH;
+        BLT:
+          state <= BLT2;
+        BLE:
+          state <= BLE2;
+        BEQ:
+          state <= BEQ2;
+        JUMP:
+          state <= FETCH;
+        BLT2:
+          state <= FETCH;
+        BLE2:
+          state <= FETCH;  
+        BEQ2:
+          state <= FETCH;
+        default:
+          state <= FETCH;
+			endcase
+    end 
+    
+    // Determine the output based only on the current state
+	// and the input (do not wait for a clock edge).
+	always @ (*) begin
+   pc = 16'hffff;
+	instruction = 16'hf000; // jump to 0
+   sram_addr = 16'hffff;
+	  sram_we_n = 1'b1;
+	  reg_addr_a = 4'hf;
+	  reg_addr_b = 4'hf;
+	  reg_addr_c = 4'hf;
+	  reg_we = 1'b0;
+	  alu_op = `alu_op_size'd0;
+	  im_en = 1'b0;
+	  sram_q = 16'hffff;
+	  regC = 16'hffff;
+	  
+		case (state)
+      FETCH: begin
+        instruction = sram_d;
+        sram_addr = pc;
+        sram_we_n = 1'b1;
+		  pc = pc;
+		  end
+		ADD: begin
+		  reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h0;
+        im_en = 1'b0;  
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+		ADDI: begin
+        reg_addr_a = 4'hx; // dont care
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h0;
+        im_en = 1'b1;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+		SUB: begin
+		  reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h1;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+		SUBI: begin
+        reg_addr_a = 4'hx; // dont care
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h1;
+        im_en =1'b1;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+      MULT: begin
+  	    reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h2;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+      SW: begin
+        reg_addr_a = op3; // output the data, will not go throguh alu because of immed field
+        reg_addr_b = op2; // op2 is the pointer
+        reg_addr_c = 4'hx; // dont care
+        reg_we = 1'b0;
+        alu_op = `alu_op_size'h0;
+        im_en = 1'b1;
+        // statement to choose sram addr
+        sram_we_n = 1'b0;
+        sram_q = regA;// port A
+		  sram_addr = regB;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+      LW:begin
+        reg_addr_a = 4'hx; // dont care, the immed field is used
+        reg_addr_b = op2; // op2 is the pointer
+        reg_addr_c = op3; // op3 is the register addr to load into
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h0;
+        im_en = 1'b1;
+        // statement to choose sram addr
+        sram_we_n = 1'b1;
+        regC = sram_d;
+		  sram_addr = regB;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+      LT: begin
+        reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h6;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+      NAND: begin
+  	    reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h3;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+      DIV: begin 
+		  reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h4;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+      MOD: begin
+        reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h5;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+      LTE: begin
+        reg_addr_a = op1;
+        reg_addr_b = op2;
+        reg_addr_c = op3;
+        reg_we = 1'b1;
+        alu_op = `alu_op_size'h7;
+        im_en = 1'b0;
+        pc = pc + 16'd1;
+		  instruction = instruction;
+		  end
+      BLT: begin
+        reg_addr_a = op3;
+        reg_addr_b = op2;
+        reg_addr_c = 4'hx;
+        reg_we = 1'b0;
+        alu_op = `alu_op_size'h6;
+        im_en = 1'b0;
+		  pc = pc;
+		  instruction = instruction;
+		  end
+      BLE: begin
+        reg_addr_a = op3;
+        reg_addr_b = op2;
+        reg_addr_c = 4'hx;
+        reg_we = 1'b0;
+        alu_op = `alu_op_size'h7;
+        im_en = 1'b0;
+		  pc = pc;
+		  instruction = instruction;
+		  end
+      BEQ: begin
+        reg_addr_a = op3;
+        reg_addr_b = op2;
+        reg_addr_c = 4'hx;
+        reg_we = 1'b0;
+        alu_op = `alu_op_size'h1;
+        im_en = 1'b0;
+		  pc = pc;
+		  instruction = instruction;
+		  end
+      JUMP: begin
+        pc = pc + jump;
+		  instruction = instruction;
+		  end
+      BLT2: begin
+        if(alu_status == 16'd1) begin
+          pc = pc + {12'd0, im};
+        end else begin 
+          pc = pc + 16'd1;
+		  end
+		  instruction = instruction;
+		end
+      BLE2: begin
+        if(alu_status == 16'd1) begin
+          pc = pc + {12'd0, im};
+        end else begin
+          pc = pc + 16'd1;
+		  end
+		  instruction = instruction;
+		end
+      BEQ2: begin
+        if(alu_status == 16'd0) begin
+          pc = pc + {12'd0, im};
+        end else begin
+          pc = pc + 16'd1;
+		  end
+		  instruction = instruction;
+		end
+      default: begin
+        pc = 16'd0; // reset program
+		  instruction = instruction;
+		end
+		endcase
 end
+
+endmodule
