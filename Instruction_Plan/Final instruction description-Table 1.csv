@@ -1,0 +1,10 @@
+Instruction type,,,,
+R,op_code,op3,op2,op1
+,4,4,4,4
+J,op_code,j,,
+,4,12,,
+I,op_code,op3,op2,immed
+,4,4,4,4
+,,,,
+,,,,
+,,,,
