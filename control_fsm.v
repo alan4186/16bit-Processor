@@ -1,12 +1,13 @@
 module control_fsm
 (
   input	clk, reset,
-  input [15:0] sram_d, regA, regB, alu_status,
+  input [15:0] sram_d, regA, regB, alu_status, alu_out,
   
-  output reg sram_we_n, reg_we, im_en,
+  output reg sram_we_n, reg_we,
   output reg [2:0] alu_op,
   output reg [3:0] reg_addr_a, reg_addr_b, reg_addr_c,
-  output reg [15:0] sram_addr, sram_q, regC
+  output [15:0] alu_op_a, reg_data_c,
+  output reg [15:0] sram_addr, sram_q
   
   
  );
@@ -15,14 +16,16 @@ module control_fsm
   `define alu_op_size 3
 	
 	// Declare states
-  parameter ADD = 5'd0, ADDI = 5'd1, SUB = 5'd2, SUBI = 5'd3, MULT = 5'd4, SW = 5'd5, LW = 5'd6, LT = 5'd7, NAND = 4'd8, DIV = 5'd9, MOD = 5'd10, LTE = 5'd11, BLT = 5'd12, BLE = 5'd13, BEQ = 5'd14, JUMP = 5'd15, FETCH = 5'd16, BLT2 = 5'd17, BLE2 = 5'd18, BEQ2 = 5'd19;	
+  parameter ADD = 5'd0, ADDI = 5'd1, SUB = 5'd2, SUBI = 5'd3, MULT = 5'd4, SW = 5'd5, LW = 5'd6, LT = 5'd7, NAND = 4'd8, DIV = 5'd9, MOD = 5'd10, LTE = 5'd11, BLT = 5'd12, BGE = 5'd13, BEQ = 5'd14, JUMP = 5'd15, FETCH = 5'd16, BLT2 = 5'd17, BGE2 = 5'd18, BEQ2 = 5'd19;	
    
+  reg im_en;
   reg	[4:0] state;
-  reg [15:0] instruction, pc;
+  reg [15:0] instruction, pc, regC;
 
   wire [3:0] op_code, op1, op2, op3, im;
   wire [11:0] jump;
-
+  //wire [15:0] alu_op_a;
+  
   // assign the different fields of the instruction
   assign op_code = instruction[15:12];
   assign op1 = instruction[3:0];
@@ -31,8 +34,10 @@ module control_fsm
   assign im = instruction[3:0];
   assign jump = instruction[11:0];
 
+  assign alu_op_a = im_en ? {12'd0, im} : regA;
 
-
+  assign reg_data_c = state == LW ? regC : alu_out;
+  
   // Determine the next state synchronously, based on the
 	// current state and the input
 	always @ (posedge clk or negedge reset) begin
@@ -68,15 +73,15 @@ module control_fsm
           state <= FETCH;
         BLT:
           state <= BLT2;
-        BLE:
-          state <= BLE2;
+        BGE:
+          state <= BGE2;
         BEQ:
           state <= BEQ2;
         JUMP:
           state <= FETCH;
         BLT2:
           state <= FETCH;
-        BLE2:
+        BGE2:
           state <= FETCH;  
         BEQ2:
           state <= FETCH;
@@ -88,7 +93,7 @@ module control_fsm
     // Determine the output based only on the current state
 	// and the input (do not wait for a clock edge).
 	always @ (*) begin
-   pc = 16'hffff;
+   pc = 16'h0000;
 	instruction = 16'hf000; // jump to 0
    sram_addr = 16'hffff;
 	  sram_we_n = 1'b1;
@@ -98,7 +103,7 @@ module control_fsm
 	  reg_we = 1'b0;
 	  alu_op = `alu_op_size'd0;
 	  im_en = 1'b0;
-	  sram_q = 16'hffff;
+	  sram_q = 16'hf0f0;
 	  regC = 16'hffff;
 	  
 		case (state)
@@ -246,7 +251,7 @@ module control_fsm
 		  pc = pc;
 		  instruction = instruction;
 		  end
-      BLE: begin
+      BGE: begin
         reg_addr_a = op3;
         reg_addr_b = op2;
         reg_addr_c = 4'hx;
@@ -278,7 +283,7 @@ module control_fsm
 		  end
 		  instruction = instruction;
 		end
-      BLE2: begin
+      BGE2: begin
         if(alu_status == 16'd1) begin
           pc = pc + {12'd0, im};
         end else begin
