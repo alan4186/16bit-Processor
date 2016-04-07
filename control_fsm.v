@@ -15,7 +15,7 @@ module control_fsm
   `define alu_op_size 3
 	
 	// Declare states
-  parameter ADD = 5'd0, ADDI = 5'd1, SUB = 5'd2, SUBI = 5'd3, MULT = 5'd4, SW = 5'd5, LW = 5'd6, LT = 5'd7, NAND = 4'd8, DIV = 5'd9, MOD = 5'd10, LTE = 5'd11, BLT = 5'd12, BGE = 5'd13, BEQ = 5'd14, JUMP = 5'd15, FETCH = 5'd16, BLT2 = 5'd17, BGE2 = 5'd18, BEQ2 = 5'd19;	
+  parameter ADD = 5'd0, ADDI = 5'd1, SUB = 5'd2, SUBI = 5'd3, MULT = 5'd4, SW = 5'd5, LW = 5'd6, LT = 5'd7, NAND = 4'd8, DIV = 5'd9, MOD = 5'd10, LTE = 5'd11, BLT = 5'd12, BLE = 5'd13, BEQ = 5'd14, JUMP = 5'd15, FETCH = 5'd16, BLT2 = 5'd17, BLE2 = 5'd18, BEQ2 = 5'd19;	
    
   reg	[4:0] state;
   reg [15:0] instruction, pc;
@@ -68,15 +68,15 @@ module control_fsm
           state <= FETCH;
         BLT:
           state <= BLT2;
-        BGE:
-          state <= BGE2;
+        BLE:
+          state <= BLE2;
         BEQ:
           state <= BEQ2;
         JUMP:
           state <= FETCH;
         BLT2:
           state <= FETCH;
-        BGE2:
+        BLE2:
           state <= FETCH;  
         BEQ2:
           state <= FETCH;
@@ -246,7 +246,7 @@ module control_fsm
 		  pc = pc;
 		  instruction = instruction;
 		  end
-      BGE: begin
+      BLE: begin
         reg_addr_a = op3;
         reg_addr_b = op2;
         reg_addr_c = 4'hx;
@@ -278,7 +278,7 @@ module control_fsm
 		  end
 		  instruction = instruction;
 		end
-      BGE2: begin
+      BLE2: begin
         if(alu_status == 16'd1) begin
           pc = pc + {12'd0, im};
         end else begin
