@@ -1,10 +1,10 @@
 module register_file
 (
   input clk, rst, w_en, 
-  input [3:0] addr_a, addr_b, addr_c, 
+  input [3:0] addr_a, addr_b, addr_c, addr_d,
   input [15:0] data_c,
   
-  output reg [15:0] data_a, data_b
+  output reg [15:0] data_a, data_b, data_d
 );
 
   //`define addr_size 4
@@ -117,7 +117,42 @@ module register_file
     4'hf:
       data_b <= dataF;
   endcase
-
+ 
+  case(addr_d) 
+    4'h0:
+      data_d <= data0;
+    4'h1:
+      data_d <= data1;
+    4'h2:
+      data_d <= data2;
+    4'h3:
+      data_d <= data3;
+    4'h4:
+      data_d <= data4;
+    4'h5:
+      data_d <= data5;
+    4'h6:
+      data_d <= data6;
+    4'h7:
+      data_d <= data7;
+    4'h8:
+      data_d <= data8;
+    4'h9:
+      data_d <= data9;
+    4'ha:
+      data_d <= dataA;
+    4'hb:
+      data_d <= dataB;
+	 4'hc:
+	    data_d <= dataC;
+    4'hd:
+      data_d <= dataD;
+    4'he:
+      data_d <= dataE;
+    4'hf:
+      data_d <= dataF;
+  endcase
+  
 end
 
 endmodule
