@@ -2,6 +2,8 @@
 
 import sys
 import csv
+from cStringIO import StringIO
+from intelhex import IntelHex16bit
 
 print sys.argv
 if len(sys.argv) != 3:
@@ -51,12 +53,8 @@ def twosCompliment(val):
 def itype(row):
     op_code = row[data_start_col]
     field3 = row[data_start_col + 1]
-    field2 = row[data_start_col + 1]
-    field1 = row[data_start_col + 1]
-    addr = row[addressCol]
-    addr = addr[2:]
-    if len(addr) != 4:
-        print "WARNING: address " + row[addressCol] + " is not 2 bytes"
+    field2 = row[data_start_col + 2]
+    field1 = row[data_start_col + 3]
     # convert to hex
     op_code = hexStr(op_code)
     field3 = hexStr(field3)
@@ -70,12 +68,9 @@ def itype(row):
         raise ValueError(field2, "field 2 at address " +row[addressCol] +" must be 4 bits")
     if len(field1) != 1:
         raise ValueError(field1, "field 1 at address " +row[addressCol] +" must be 4 bits")
-    # build hex line for memory file
-    line = "02" + addr + "00" + op_code + field3 + field2 + field1
-    chksum = computeChksum(line)
-    if len(chksum) > 2:
-      print "WARNING: The checksum at address " + row[addressCol] + " is more than 8 bits"
-    return line + chksum
+    data = (op_code + field3)[::-1] + (field2 + field1)[::-1]
+    data = data[::-1]
+    return hex(int(data,16))
 
 def rtype(row):
     return itype(row)
@@ -83,10 +78,6 @@ def rtype(row):
 def jtype(row):
     op_code = row[data_start_col]
     offset = int(row[data_start_col + 1])
-    addr = row[addressCol]
-    addr = addr[2:]
-    if len(addr) != 4:
-        print "WARNING: address " + row[addressCol] + " is not 2 bytes"
     if row[data_start_col+2] != 'x' or row[data_start_col+3] != 'x':
         print "WARNING: fields 2 and 1 may have non-placeholder values at address " + row[addressCol]
     # convert to hex
@@ -99,38 +90,25 @@ def jtype(row):
     # build hex line for memory file
     while(len(offset) < 3):
         offset = '0' + offset
-    line = "02" + addr + "00" + op_code + offset 
-    chksum = computeChksum(line)
-    if len(chksum) > 2:
-        raise ValueError(chksum,"The checksum at address " + row[addressCol] + " must be 8 bits")
-    return line + chksum
+    data = op_code + offset
+    data = (data[0:2])[::-1] + (data[2:4])[::-1]
+    data = data[::-1]
+    return hex(int(data,16))
 
 def datatype(row):
     data = int(row[data_start_col])
     # convert data to hex
     data = hexStr(data)
-    addr = row[addressCol]
-    addr = addr[2:]
-    
     if len(data) > 4:
         raise ValueError(data, "The Data value at address " +row[addressCol] + " must be 16 bits")
     while len(data) < 4:
         data = '0' + data
-    line = "02" + addr + "00" + data
-    chksum = computeChksum(line)
-    if len(chksum) > 2:
-        raise ValueError(chksum,"The checksum at address " + row[addressCol] + " must be 8 bits")
-    return line + chksum
+    data = (data[0:2])[::-1] + (data[2:4])[::-1]
+    data = data[::-1]
+    return hex(int(data,16))
 
 def emptyaddr(row):
-    addr = row[addressCol]
-    addr = addr[2:]
-    line = "02" + addr + "000000"
-    chksum = computeChksum(line)
-    if len(chksum) > 2:
-        raise ValueError(chksum,"The checksum at address " + row[addressCol] + " must be 8 bits")
-    return line + chksum
-
+    return hex(int("0000",16))
 
 switch = { 'i':itype, 'r':rtype, 'j':jtype, 'd':datatype, 'x':emptyaddr}
 
@@ -141,11 +119,21 @@ with open(outFile, 'w') as dummy:
 with open(inFile, 'r') as csvfile:
     csvreader = csv.reader(csvfile, delimiter=',',quotechar='|')
     headers = next(csvreader)
+    q = 0
+    ih = IntelHex16bit()
     for row in csvreader:
         # assume no headers
-        line = ":" + switch[row[typeCol]](row) + '\n'
-        with open(outFile,'a') as of:
-            of.write(line)
-with open(outFile,'a') as of:
-    of.write(":00000001FF")
+        hexData = switch[row[typeCol]](row)
+        print q
+        ih[q] = int( hexData,16)
+        q = q + 1
+sio = StringIO()
+ih.write_hex_file(sio)
+hexString = sio.getvalue()
+sio.close()
+
+with open(outFile,'w') as of:
+    of.write(hexString)
+
 print "\n\nDone!"
+
