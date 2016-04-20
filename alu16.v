@@ -1,8 +1,8 @@
 module alu16(
 
   input clk,rst,
-  input [3:0] operator, // will depend on operatorSize
-  input[15:0] op1,op2,
+  input [2:0] operator, // will depend on operatorSize
+  input [15:0] op1,op2,
   
   output reg [15:0] out, status
   );
@@ -22,7 +22,7 @@ module alu16(
       `operatorSize'h0: // ADD
         out <= op1 + op2;
       `operatorSize'h1: // SUB
-        out <= op1 - op2;
+        out <= op2 - op1;
       `operatorSize'h2: // MULT
         out <= op1 * op2;
       `operatorSize'h3: // NAND
