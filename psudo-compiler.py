@@ -21,35 +21,12 @@ def hexStr(decStr):
     h = h.split('x')[-1]
     return h
 
-def computeChksum(line):
-    sum = int(line[0:2],16)
-    sum = sum + int(line[2:4],16)
-    sum = sum + int(line[4:6],16)
-    sum = twosCompliment(sum)
-    sum = bin(sum)
-    sum = sum.split('b')[-1]
-    sum = hex(int(sum,2))
-    sum = sum.split('x')[-1]
-    while len(sum) < 2:
-        sum = '0' + sum
-    if len(sum) > 2:
-        sum = sum[-2:]
-    return sum
-    
-def twosCompliment(val):
-    val = bin(val)
-    ival = ''
-    for bit in val:
-        if bit == '0':
-            ival = ival + '1'
-        elif bit == '1':
-            ival = ival + '0'
-        elif bit == 'x':
-            ival = ''
-    ival = int(ival,2)
-    return ival + 0b1
+def hexFill(decStr):
+    h = hexStr(decStr)
+    while len(h) < 4:
+        h = '0' + h
+    return h
 
-    
 def itype(row):
     op_code = row[data_start_col]
     field3 = row[data_start_col + 1]
@@ -68,8 +45,7 @@ def itype(row):
         raise ValueError(field2, "field 2 at address " +row[addressCol] +" must be 4 bits")
     if len(field1) != 1:
         raise ValueError(field1, "field 1 at address " +row[addressCol] +" must be 4 bits")
-    data = (op_code + field3)[::-1] + (field2 + field1)[::-1]
-    data = data[::-1]
+    data = op_code + field3 + field2 + field1
     return hex(int(data,16))
 
 def rtype(row):
@@ -89,10 +65,8 @@ def jtype(row):
         raise ValueError(offset,"The Jump value at " + row[addressCol] +" is to large, it should be 12 bits or less")
     # build hex line for memory file
     while(len(offset) < 3):
-        offset = '0' + offset
+        offset = '0' + offset # will not account for negitive jumps
     data = op_code + offset
-    data = (data[0:2])[::-1] + (data[2:4])[::-1]
-    data = data[::-1]
     return hex(int(data,16))
 
 def datatype(row):
@@ -103,8 +77,6 @@ def datatype(row):
         raise ValueError(data, "The Data value at address " +row[addressCol] + " must be 16 bits")
     while len(data) < 4:
         data = '0' + data
-    data = (data[0:2])[::-1] + (data[2:4])[::-1]
-    data = data[::-1]
     return hex(int(data,16))
 
 def emptyaddr(row):
@@ -113,27 +85,23 @@ def emptyaddr(row):
 switch = { 'i':itype, 'r':rtype, 'j':jtype, 'd':datatype, 'x':emptyaddr}
 
 print "Reading " + inFile + " as the source csv file"
-with open(outFile, 'w') as dummy:
+with open(outFile, 'w') as of:
     print "Overiting "+ outFile + " if it exists"
+    header = "WIDTH = 16;\nDEPTH=256;\n\nADDRESS_RADIX=UNS;\nDATA_RADIX=HEX;\n\nCONTENT BEGIN\n"
+    of.write(header)
 
 with open(inFile, 'r') as csvfile:
     csvreader = csv.reader(csvfile, delimiter=',',quotechar='|')
     headers = next(csvreader)
-    q = 0
-    ih = IntelHex16bit()
     for row in csvreader:
         # assume no headers
-        hexData = switch[row[typeCol]](row)
-        print q
-        ih[q] = int( hexData,16)
-        q = q + 1
-sio = StringIO()
-ih.write_hex_file(sio)
-hexString = sio.getvalue()
-sio.close()
+        with open(outFile,'a') as of:
+            hexData = switch[row[typeCol]](row)
+            line = row[addressCol+1] + "\t:\t" + hexFill(int(hexData,16)) + ";\n"
+            of.write(line)
 
-with open(outFile,'w') as of:
-    of.write(hexString)
+with open(outFile,'a') as of:
+    of.write("END;")
 
 print "\n\nDone!"
 
