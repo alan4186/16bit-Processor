@@ -1,5 +1,5 @@
 Memory Addr (Hex),Memory Addr (Dec),Instruction,Human Readable Description,Instruction Type,Op Code,Field 3,Field 2,Field 1,Comment ,,,,
-0x0000,0,ADDI,load 1,i,2,0,0,1,,,,,
+0x0000,0,ADDI,load 1,i,1,0,0,1,,,,,
 0x0001,1,SW,save 1,i,5,0,1,0,no need to load pointer because pointer is 0x0000,,,,
 0x0002,2,LW,load 1,i,6,0,1,0,,,,,
 0x0003,3,ADD,do 1 + 1 ,r,0,0,0,0,add the value of register 0 to itself and save in reg 0,,,,
