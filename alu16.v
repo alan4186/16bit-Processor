@@ -13,7 +13,9 @@ module alu16(
   //wire signed [0:`numBits - 1] op1,op2;
 
   //reg [0:`numBits - 1] out, status;
-
+	//wire [15:0] mult_out;
+   //mult mult0 (op1,op2,mult_out);
+	
   always@(*) begin
     if(rst == 1'b0) begin
       out <= `numBits'd0;
@@ -24,7 +26,7 @@ module alu16(
       `operatorSize'h1: // SUB
         out <= op2 - op1;
       `operatorSize'h2: // MULT
-        out <= op1 * op2;
+        out <= (op1 * op2);//mult_out;
       `operatorSize'h3: // NAND
         out <= ~(op1 & op2);
       `operatorSize'h4: // DIV

@@ -1,6 +1,6 @@
 module control_fsm
 (
-  input	clk, reset,
+  input	clk, reset,  run_n,
   input [15:0] sram_d, regA, regB, alu_status, alu_out,
   
   output reg sram_we_n, reg_we,
@@ -45,7 +45,7 @@ module control_fsm
 	always @ (posedge clk or negedge reset) begin
 		if (reset == 1'b0) begin
 			state <= FETCH;
-		end else
+		end else if(!run_n)
 			case (state)
         FETCH:
 		    state <= DECODE;
@@ -99,7 +99,8 @@ module control_fsm
         BLT2:
           state <= FETCH;
         BLE2:
-		    state <= BLE3;
+		    //state <= BLE3;
+			 state <= FETCH;
 		  BLE3:
           state <= FETCH;  
         BEQ2:
@@ -124,7 +125,7 @@ module control_fsm
 //			alu_op <= `alu_op_size'd0;
 //			im_en <= 1'b0;
 			sram_q <= 16'h0000;
-			regC <= 16'hffff;
+//			regC <= 16'hffff;
 	  end else begin
 	  
 		case (state)
@@ -134,7 +135,7 @@ module control_fsm
         sram_we_n <= 1'b1;
 		  pc <= pc;
 		  //reg_we <= 1'b0;
-        sram_we_n <= 1'b1;
+//        sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  end
 		DECODE: begin
@@ -143,6 +144,7 @@ module control_fsm
 		  //reg_we <= 1'b0;
 		  sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		end
 		ADD: begin
 //		  reg_addr_a <= op1;
@@ -155,6 +157,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
 		ADDI: begin
 //        reg_addr_a <= 4'hx; // dont care
@@ -167,6 +170,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
 		SUB: begin
 //		  reg_addr_a <= op1;
@@ -179,6 +183,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
 		SUBI: begin
 //        reg_addr_a <= 4'hx; // dont care
@@ -191,6 +196,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       MULT: begin
 //  	     reg_addr_a <= op1;
@@ -203,6 +209,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       SW: begin
 //        reg_addr_a <= op3; // output the data, will not go throguh alu because of immed field
@@ -278,6 +285,7 @@ module control_fsm
 		  sram_addr <= alu_out;
         pc <= pc;
 		  instruction <= instruction;
+		  sram_q <= 16'hffff;
 		  end
 		 LW2:begin
 //        reg_addr_a <= 4'hx; // dont care, the immed field is used
@@ -292,6 +300,7 @@ module control_fsm
 		  sram_addr <= pc;
         pc <= pc;
 		  instruction <= instruction;
+		  sram_q <= 16'hffff;
 		  end
 		 LW3:begin
 //        reg_addr_a <= 4'hx; // dont care, the immed field is used
@@ -306,6 +315,7 @@ module control_fsm
 		  sram_addr <= pc;
         pc <= pc + 16'd1;
 		  instruction <= instruction;
+		  sram_q <= 16'hffff;
 		  end
       LT: begin
 //        reg_addr_a <= op1;
@@ -318,6 +328,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       NAND: begin
 //  	    reg_addr_a <= op1;
@@ -330,6 +341,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       DIV: begin 
 //		  reg_addr_a <= op1;
@@ -342,6 +354,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       MOD: begin
 //        reg_addr_a <= op1;
@@ -354,6 +367,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       LTE: begin
 //        reg_addr_a <= op1;
@@ -366,6 +380,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       BLT: begin
 //        reg_addr_a <= op3;
@@ -378,6 +393,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       BLE: begin
 //        reg_addr_a <= op3;
@@ -390,6 +406,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       BEQ: begin
 //        reg_addr_a <= op3;
@@ -402,6 +419,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		  end
       JUMP: begin
 		  // move back 1 because previous instruction adds 1 to pc
@@ -432,6 +450,7 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		end
       BLE2: begin
         if(alu_status == 16'd1) begin
@@ -439,17 +458,20 @@ module control_fsm
 			 sram_addr <= pc + {12'd0, im};
         end else begin
           pc <= pc + 16'd1;
-			 sram_addr <= sram_addr;
+//			 sram_addr <= sram_addr;
+			 sram_addr <= pc + 16'd1;// 2AM change = uncomment this line
 		  end
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		end
       BLE3: begin
-		  pc <= pc;
+//		  pc <= pc;
+        pc <= pc + 16'd1;// 2AM change = uncomment this line
   		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;
 		end
       BEQ2: begin
         if(alu_status == 16'd0) begin
@@ -460,12 +482,14 @@ module control_fsm
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		end
       default: begin
         pc <= 16'd0; // reset program
 		  instruction <= instruction;
         sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
 		end
 		endcase
 		end
@@ -511,7 +535,7 @@ always@(*) begin
         reg_addr_b = op2;
         reg_addr_c = op3;
         reg_we = 1'b1;
-		  alu_op = `alu_op_size'h0;
+		  alu_op = `alu_op_size'h1;
         im_en = 1'b0;
 		  end
 		SUBI: begin
@@ -519,7 +543,7 @@ always@(*) begin
         reg_addr_b = op2;
         reg_addr_c = op3;
         reg_we = 1'b1;
-		  alu_op = `alu_op_size'h0;
+		  alu_op = `alu_op_size'h1;
         im_en = 1'b1;
 		  end
       MULT: begin
@@ -527,7 +551,7 @@ always@(*) begin
         reg_addr_b = op2;
         reg_addr_c = op3;
         reg_we = 1'b1;
-		  alu_op = `alu_op_size'h0;
+		  alu_op = `alu_op_size'h2;
         im_en = 1'b0;
 		  end
       SW: begin
