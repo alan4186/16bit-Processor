@@ -1,0 +1,92 @@
+-- Copyright (C) 1991-2014 Altera Corporation. All rights reserved.
+-- Your use of Altera Corporation's design tools, logic functions 
+-- and other software and tools, and its AMPP partner logic 
+-- functions, and any output files from any of the foregoing 
+-- (including device programming or simulation files), and any 
+-- associated documentation or information are expressly subject 
+-- to the terms and conditions of the Altera Program License 
+-- Subscription Agreement, the Altera Quartus II License Agreement,
+-- the Altera MegaCore Function License Agreement, or other 
+-- applicable license agreement, including, without limitation, 
+-- that your use is for the sole purpose of programming logic 
+-- devices manufactured by Altera and sold by Altera or its 
+-- authorized distributors.  Please refer to the applicable 
+-- agreement for further details.
+
+-- Quartus II generated Memory Initialization File (.mif)
+
+WIDTH=16;
+DEPTH=256;
+
+ADDRESS_RADIX=HEX;
+DATA_RADIX=HEX;
+
+CONTENT BEGIN
+	000  :   0000;
+	001  :   6013;
+	002  :   F002;
+	003  :   0030;
+	004  :   6100;
+	005  :   6201;
+	006  :   6302;
+	007  :   6403;
+	008  :   6504;
+	009  :   1620;
+	00A  :   1730;
+	00B  :   18F0;
+	00C  :   D48D;
+	00D  :   2999;
+	00E  :   D599;
+	00F  :   4A84;
+	010  :   0AA9;
+	011  :   062A;
+	012  :   073A;
+	013  :   6B60;
+	014  :   4BB1;
+	015  :   5B70;
+	016  :   1991;
+	017  :   FFF7;
+	018  :   1881;
+	019  :   FFF3;
+	01A  :   6030;
+	01B  :   6131;
+	01C  :   6232;
+	01D  :   6F3F;
+	01E  :   6434;
+	01F  :   6535;
+	020  :   6636;
+	021  :   6737;
+	022  :   6838;
+	023  :   6939;
+	024  :   6A3A;
+	025  :   6B3B;
+	026  :   6C3C;
+	027  :   6D3D;
+	028  :   6E3E;
+	029  :   6333;
+	02A  :   F001;
+	02B  :   FFFF;
+	[02C..02F]  :   0000;
+	030  :   0005;
+	031  :   0035;
+	032  :   0049;
+	033  :   0004;
+	[034..035]  :   0005;
+	036  :   0006;
+	037  :   FFFC;
+	[038..039]  :   0007;
+	03A  :   0006;
+	03B  :   0002;
+	03C  :   0000;
+	03D  :   FFFA;
+	03E  :   FFFF;
+	03F  :   FFFA;
+	040  :   FFF9;
+	[041..042]  :   0007;
+	043  :   0004;
+	044  :   FFFC;
+	045  :   0000;
+	[046..047]  :   0007;
+	048  :   FFFA;
+	[049..0FF]  :   0000;
+END;
