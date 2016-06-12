@@ -2,8 +2,6 @@
 
 import sys
 import csv
-from cStringIO import StringIO
-from intelhex import IntelHex16bit
 
 print sys.argv
 if len(sys.argv) != 3:
