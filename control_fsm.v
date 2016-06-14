@@ -103,7 +103,6 @@ parameter BEQ3 = 5'd29;
 		      state <= FETCH;
         LW:
 		      state <= LW2;
-//		    state <= FETCH;
 		    LW2:
 		      state <= LW3;
 		    LW3:
@@ -129,17 +128,14 @@ parameter BEQ3 = 5'd29;
 		    JUMP2:
 		      state <= FETCH;
         BLT2:
-          //state <= FETCH;
           state <= BLT3;
         BLT3:
           state <= FETCH;
         BLE2:
 		      state <= BLE3;
-			    // state <= FETCH;
 		    BLE3:
           state <= FETCH;  
         BEQ2:
-          // state <= FETCH;
           state <= BEQ3;
         BEQ3:
           state <= FETCH;
@@ -148,7 +144,7 @@ parameter BEQ3 = 5'd29;
 			endcase
     end 
     
-    // Determine the output based only on the current state
+  // Determine the output based only on the current state
 	// and the input (do not wait for a clock edge).
 	always @ (posedge clk or negedge reset) begin
 		if(reset == 1'b0) begin
@@ -156,325 +152,177 @@ parameter BEQ3 = 5'd29;
 			instruction <= 16'hf000; // jump to 0
 			sram_addr <= 16'h0000;
 			sram_we_n <= 1'b1;
-//			reg_addr_a <= 4'hf;
-//			reg_addr_b <= 4'hf;
-//			reg_addr_c <= 4'hf;
-			//reg_we <= 1'b0;
-//			alu_op <= `alu_op_size'd0;
-//			im_en <= 1'b0;
 			sram_q <= 16'h0000;
-//			regC <= 16'hffff;
 	  end else begin
-	  
 		case (state)
       FETCH: begin
         instruction <= sram_d;
         sram_addr <= pc;
         sram_we_n <= 1'b1;
-		  pc <= pc;
-		  //reg_we <= 1'b0;
-//        sram_we_n <= 1'b1;
-		  sram_q <= 16'hffff;
+		    pc <= pc;
+		    sram_q <= 16'hffff;
 		  end
 		DECODE: begin
 		  pc <= pc;
 		  instruction <= instruction;
-		  //reg_we <= 1'b0;
 		  sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
 		end
 		ADD: begin
-//		  reg_addr_a <= op1;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h0;
-//        im_en <= 1'b0;  
-        pc <= pc + 16'd1;
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
-		  end
+		end
 		ADDI: begin
-//        reg_addr_a <= 4'hx; // dont care
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h0;
-//        im_en <= 1'b1;
-        pc <= pc + 16'd1;
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+       sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
-		  end
+		end
 		SUB: begin
-//		  reg_addr_a <= op1;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h1;
-//        im_en <= 1'b0;
-        pc <= pc + 16'd1;
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
-		  end
+		end
 		SUBI: begin
-//        reg_addr_a <= 4'hx; // dont care
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h1;
-//        im_en <=1'b1;
-        pc <= pc + 16'd1;
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
+		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
+		end
+    MULT: begin
+      pc <= pc + 16'd1;
+		  instruction <= instruction;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
 		  end
-      MULT: begin
-//  	     reg_addr_a <= op1;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h2;
-//        im_en <= 1'b0;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
-        sram_we_n <= 1'b1;
-		  sram_q <= 16'hffff;
-		  sram_addr <= sram_addr;// infered latch
-		  end
-      SW: begin
-//        reg_addr_a <= op3; // output the data, will not go throguh alu because of immed field
-//        reg_addr_b <= op2; // op2 is the pointer
-//        reg_addr_c <= 4'hx; // dont care
-        //reg_we <= 1'b0;
-//        alu_op <= `alu_op_size'h0;
-//        im_en <= 1'b1;
-        // statement to choose sram addr
-//		  sram_we_n <= 1'b0;// high score
-
-        sram_we_n <= 1'b1;// should work
-        sram_q <= regA;// port A
-//		  sram_addr <= regB;
+    SW: begin
+      sram_we_n <= 1'b1;// should work
+      sram_q <= regA;// port A
 		  sram_addr <= alu_out;
-        pc <= pc;
+      pc <= pc;
 		  instruction <= instruction;
-		  end
+		end
 		SW2: begin
-//        reg_addr_a <= op3; // output the data, will not go throguh alu because of immed field
-//        reg_addr_b <= op2; // op2 is the pointer
-//        reg_addr_c <= 4'hx; // dont care
-        //reg_we <= 1'b0;
-//        alu_op <= `alu_op_size'h0;
-//        im_en <= 1'b1;
-        // statement to choose sram addr
-        sram_we_n <= 1'b0;
-        sram_q <= regA;// port A
-//		  sram_addr <= regB;
+      sram_we_n <= 1'b0;
+      sram_q <= regA;// port A
 		  sram_addr <= alu_out;
-        pc <= pc;
+      pc <= pc;
 		  instruction <= instruction;
-		  end
-		 SW3: begin
-//        reg_addr_a <= op3; // output the data, will not go throguh alu because of immed field
-//        reg_addr_b <= op2; // op2 is the pointer
-//        reg_addr_c <= 4'hx; // dont care
-        //reg_we <= 1'b0;
-//        alu_op <= `alu_op_size'h0;
-//        im_en <= 1'b1;
-        // statement to choose sram addr
-        sram_we_n <= 1'b1;
-        sram_q <= regA;// port A
+		end
+		SW3: begin
+      sram_we_n <= 1'b1;
+      sram_q <= regA;// port A
 		  sram_addr <= pc;// for fetch cycle
-        pc <= pc;
+      pc <= pc;
 		  instruction <= instruction;
 		  end
 		SW4: begin
-//        reg_addr_a <= op3; // output the data, will not go throguh alu because of immed field
-//        reg_addr_b <= op2; // op2 is the pointer
-//        reg_addr_c <= 4'hx; // dont care
-        //reg_we <= 1'b0;
-//        alu_op <= `alu_op_size'h0;
-//        im_en <= 1'b1;
-        // statement to choose sram addr
-        sram_we_n <= 1'b1;
-        sram_q <= regA;// port A
+      sram_we_n <= 1'b1;
+      sram_q <= regA;// port A
 		  sram_addr <= pc;// for fetch cycle
-        pc <= pc + 16'd1;
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
 		end
-      LW:begin
-//        reg_addr_a <= 4'hx; // dont care, the immed field is used
-//        reg_addr_b <= op2; // op2 is the pointer
-//        reg_addr_c <= op3; // op3 is the register addr to load into
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h0;
-//        im_en <= 1'b1;
-        // statement to choose sram addr
-        sram_we_n <= 1'b1;
-//        regC <= sram_d;
-//		  sram_addr <= regB;
+    LW:begin
+      sram_we_n <= 1'b1;
 		  sram_addr <= alu_out;
-        pc <= pc;
+      pc <= pc;
 		  instruction <= instruction;
 		  sram_q <= 16'hffff;
-		  end
-		 LW2:begin
-//        reg_addr_a <= 4'hx; // dont care, the immed field is used
-//        reg_addr_b <= op2; // op2 is the pointer
-//        reg_addr_c <= op3; // op3 is the register addr to load into
-        //reg_we <= 1'b0;
-//        alu_op <= `alu_op_size'h0;
-//        im_en <= 1'b1;
-        // statement to choose sram addr
-        sram_we_n <= 1'b1;
-//        regC <= sram_d;
+		end
+		LW2:begin
+      sram_we_n <= 1'b1;
 		  sram_addr <= pc;
-        pc <= pc;
+      pc <= pc;
 		  instruction <= instruction;
 		  sram_q <= 16'hffff;
-		  end
-		 LW3:begin
-//        reg_addr_a <= 4'hx; // dont care, the immed field is used
-//        reg_addr_b <= op2; // op2 is the pointer
-//        reg_addr_c <= op3; // op3 is the register addr to load into
-        //reg_we <= 1'b0;
-//        alu_op <= `alu_op_size'h0;
-//        im_en <= 1'b1;
-        // statement to choose sram addr
-        sram_we_n <= 1'b1;
-//        regC <= sram_d;
+		end
+		LW3:begin
+      sram_we_n <= 1'b1;
 		  sram_addr <= pc;
-        pc <= pc + 16'd1;
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
 		  sram_q <= 16'hffff;
-		  end
-      LT: begin
-//        reg_addr_a <= op1;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h6;
-//        im_en <= 1'b0;
-        pc <= pc + 16'd1;
+		end
+    LT: begin
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
+		  sram_q <= 16'hffff;
+		  sram_addr <= sram_addr;// infered latch
+		end
+    NAND: begin
+      pc <= pc + 16'd1;
+		  instruction <= instruction;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
 		  end
-      NAND: begin
-//  	    reg_addr_a <= op1;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h3;
-//        im_en <= 1'b0;
-        pc <= pc + 16'd1;
+    DIV: begin 
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
-		  end
-      DIV: begin 
-//		  reg_addr_a <= op1;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h4;
-//        im_en <= 1'b0;
-        pc <= pc + 16'd1;
+		end
+    MOD: begin
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
-		  end
-      MOD: begin
-//        reg_addr_a <= op1;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h5;
-//        im_en <= 1'b0;
-        pc <= pc + 16'd1;
+		end
+    LTE: begin
+      pc <= pc + 16'd1;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
-		  end
-      LTE: begin
-//        reg_addr_a <= op1;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= op3;
-        //reg_we <= 1'b1;
-//        alu_op <= `alu_op_size'h7;
-//        im_en <= 1'b0;
-        pc <= pc + 16'd1;
-		  instruction <= instruction;
-        sram_we_n <= 1'b1;
-		  sram_q <= 16'hffff;
-		  sram_addr <= sram_addr;// infered latch
-		  end
-      BLT: begin
-//        reg_addr_a <= op3;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= 4'hx;
-        //reg_we <= 1'b0;
-//        alu_op <= `alu_op_size'h6;
-//        im_en <= 1'b0;
+		end
+    BLT: begin
 		  pc <= pc;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
-		  end
-      BLE: begin
-//        reg_addr_a <= op3;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= 4'hx;
-        //reg_we <= 1'b0;
-//        alu_op <= `alu_op_size'h7;
-//        im_en <= 1'b0;
+		end
+    BLE: begin
 		  pc <= pc;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
-		  end
-      BEQ: begin
-//        reg_addr_a <= op3;
-//        reg_addr_b <= op2;
-//        reg_addr_c <= 4'hx;
-        //reg_we <= 1'b0;
-//        alu_op <= `alu_op_size'h1;
-//        im_en <= 1'b0;
+		end
+    BEQ: begin
 		  pc <= pc;
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
-		  end
-      JUMP: begin
+		end
+    JUMP: begin
 		  // move back 1 because previous instruction adds 1 to pc
 		  // extend MSB beacuse jump is signed
-        pc <= pc + {jump[11],jump[11],jump[11],jump[11],jump} - 16'd1;
+      pc <= pc + {jump[11],jump[11],jump[11],jump[11],jump} - 16'd1;
 		  instruction <= instruction;
-//		  im_en <= 1'b0; 
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  // shortcut to save a clock cycle, no need to wait for pc to update
 		  sram_addr <= pc + {jump[11],jump[11],jump[11],jump[11],jump}  - 16'd1;// extend MSB beacuse jump is signed
 		end
-      JUMP2: begin
-        pc <= pc + 16'd1; 
+    JUMP2: begin
+      pc <= pc + 16'd1; 
 		  instruction <= instruction;
-//		  im_en <= 1'b0; 
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  // pc should be updated now
 		  sram_addr <= pc;
@@ -484,309 +332,326 @@ parameter BEQ3 = 5'd29;
         pc <= pc + {12'd0, im};
         sram_addr <= pc + {12'd0, im};
       end else begin 
-        pc <= pc; //  + 16'd1;
-        sram_addr <= sram_addr; //  pc + 16'd1;
+        pc <= pc;
+        sram_addr <= sram_addr;
 		  end
 		  instruction <= instruction;
       sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
-		  //sram_addr <= sram_addr;// infered latch
 		end
-      BLT3: begin
-        // made to look like BLE3
-        pc <= pc + 16'd1;
-        instruction <= instruction;
-        sram_we_n <= 1'b1;
-        sram_q <= 16'hffff;
+    BLT3: begin
+      // made to look like BLE3
+      pc <= pc + 16'd1;
+      instruction <= instruction;
+      sram_we_n <= 1'b1;
+      sram_q <= 16'hffff;
+      sram_addr <= sram_addr;
+    end
+    BLE2: begin
+      if(alu_status == 16'd1) begin
+        pc <= pc + {12'd0, im};
+		    sram_addr <= pc + {12'd0, im};
+      end else begin
+        pc <= pc; // + 16'd1;
         sram_addr <= sram_addr;
-      end
-      BLE2: begin
-        if(alu_status == 16'd1) begin
-          pc <= pc + {12'd0, im};
-			    sram_addr <= pc + {12'd0, im};
-        end else begin
-          pc <= pc; // + 16'd1;
-          sram_addr <= sram_addr;
-			    // sram_addr <= pc + 16'd1;// 2AM change = uncomment this line
-		    end
+		  end
 		  instruction <= instruction;
       sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		end
-      BLE3: begin
-//		  pc <= pc;
-        pc <= pc + 16'd1;// 2AM change = uncomment this line
-  		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+    BLE3: begin
+      pc <= pc + 16'd1;
+		  instruction <= instruction;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;
 		end
-      BEQ2: begin
-        if(alu_status == 16'd0) begin
-          pc <= pc + {12'd0, im};
-          sram_addr <= pc + {12'd0, im};
-        end else begin
-          pc <= pc; // + 16'd1;
-          sram_addr <= sram_addr; //pc + 16'd1;
-   		  end
-		    instruction <= instruction;
-        sram_we_n <= 1'b1;
-	  	  sram_q <= 16'hffff;
-	  	  // sram_addr <= sram_addr; changed to match BLE2
-	  	end
-      BEQ3: begin
-        // made to look like BLE3
-        pc <= pc + 16'd1;
-        instruction <= instruction;
-        sram_we_n <= 1'b1;
-        sram_q <= 16'hffff;
-        sram_addr <= sram_addr;
-      end
-      default: begin
-        pc <= 16'd0; // reset program
+    BEQ2: begin
+      if(alu_status == 16'd0) begin
+        pc <= pc + {12'd0, im};
+        sram_addr <= pc + {12'd0, im};
+      end else begin
+        pc <= pc; // + 16'd1;
+        sram_addr <= sram_addr; //pc + 16'd1;
+   		end
 		  instruction <= instruction;
-        sram_we_n <= 1'b1;
+      sram_we_n <= 1'b1;
+	  	sram_q <= 16'hffff;
+	  end
+    BEQ3: begin
+      // made to look like BLE3
+      pc <= pc + 16'd1;
+      instruction <= instruction;
+      sram_we_n <= 1'b1;
+      sram_q <= 16'hffff;
+      sram_addr <= sram_addr;
+    end
+    default: begin
+      pc <= 16'd0; // reset program
+		  instruction <= instruction;
+      sram_we_n <= 1'b1;
 		  sram_q <= 16'hffff;
 		  sram_addr <= sram_addr;// infered latch
 		end
 		endcase
-		end
+  end
 end
 
 always@(*) begin
-
-		case (state)
-      FETCH: begin
+	case (state)
+    FETCH: begin
 		  reg_addr_a = 4'hf;
-        reg_addr_b = 4'hf;
-        reg_addr_c = 4'hf;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
 		  reg_we = 1'b0;
 		  alu_op = `alu_op_size'h0;
-        im_en = 1'b0;
-		  end
+      im_en = 1'b0;
+    end
 		DECODE: begin
 		  reg_addr_a = 4'hf;
-        reg_addr_b = 4'hf;
-        reg_addr_c = 4'hf;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
 		  reg_we = 1'b0;
 		  alu_op = `alu_op_size'h0;
-        im_en = 1'b0;
+      im_en = 1'b0;
 		end
 		ADD: begin
 		  reg_addr_a = op1;
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
 		  alu_op = `alu_op_size'h0;
-        im_en = 1'b0;
-		  end
+      im_en = 1'b0;
+		end
 		ADDI: begin
-        reg_addr_a = 4'hx; // dont care
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
+      reg_addr_a = 4'hx; // dont care
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
 		  alu_op = `alu_op_size'h0;
-        im_en = 1'b1;
-		  end
+      im_en = 1'b1;
+		end
 		SUB: begin
 		  reg_addr_a = op1;
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
 		  alu_op = `alu_op_size'h1;
-        im_en = 1'b0;
-		  end
+      im_en = 1'b0;
+		end
 		SUBI: begin
 		  reg_addr_a = 4'hx; // dont care
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
 		  alu_op = `alu_op_size'h1;
-        im_en = 1'b1;
-		  end
-      MULT: begin
+      im_en = 1'b1;
+		end
+    MULT: begin
 		  reg_addr_a = op1;
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
 		  alu_op = `alu_op_size'h2;
-        im_en = 1'b0;
-		  end
-      SW: begin
+      im_en = 1'b0;
+		end
+    SW: begin
 		  reg_addr_a = op3; // output the data, will not go throguh alu because of immed field
-        reg_addr_b = op2; // op2 is the pointer
-        reg_addr_c = 4'hx; // dont care
-        reg_we = 1'b0;
-        alu_op = `alu_op_size'h0;
-        im_en = 1'b1;
-		  end
+      reg_addr_b = op2; // op2 is the pointer
+      reg_addr_c = 4'hx; // dont care
+      reg_we = 1'b0;
+      alu_op = `alu_op_size'h0;
+      im_en = 1'b1;
+		end
 		SW2: begin
 		  reg_addr_a = op3; // output the data, will not go throguh alu because of immed field
-        reg_addr_b = op2; // op2 is the pointer
-        reg_addr_c = 4'hx; // dont care
-        reg_we = 1'b0;
-        alu_op = `alu_op_size'h0;
-        im_en = 1'b1;
-        reg_we = 1'b0;
+      reg_addr_b = op2; // op2 is the pointer
+      reg_addr_c = 4'hx; // dont care
+      reg_we = 1'b0;
+      alu_op = `alu_op_size'h0;
+      im_en = 1'b1;
+      reg_we = 1'b0;
 		end
 		SW3: begin
 		  reg_addr_a = op3; // output the data, will not go throguh alu because of immed field
-        reg_addr_b = op2; // op2 is the pointer
-        reg_addr_c = 4'hx; // dont care
-        reg_we = 1'b0;
-        alu_op = `alu_op_size'h0;
-        im_en = 1'b1;
-        reg_we = 1'b0;
+      reg_addr_b = op2; // op2 is the pointer
+      reg_addr_c = 4'hx; // dont care
+      reg_we = 1'b0;
+      alu_op = `alu_op_size'h0;
+      im_en = 1'b1;
+      reg_we = 1'b0;
 		end
 		SW4: begin
 		  reg_addr_a = op3; // output the data, will not go throguh alu because of immed field
-        reg_addr_b = op2; // op2 is the pointer
-        reg_addr_c = 4'hx; // dont care
-        reg_we = 1'b0;
-        alu_op = `alu_op_size'h0;
-        im_en = 1'b1;
-        reg_we = 1'b0;
+      reg_addr_b = op2; // op2 is the pointer
+      reg_addr_c = 4'hx; // dont care
+      reg_we = 1'b0;
+      alu_op = `alu_op_size'h0;
+      im_en = 1'b1;
+      reg_we = 1'b0;
 		end
-      LW:begin
+    LW:begin
 		  reg_addr_a = 4'hx; // dont care, the immed field is used
-        reg_addr_b = op2; // op2 is the pointer
-        reg_addr_c = op3; // op3 is the register addr to load into
-//        reg_we = 1'b1;
-        alu_op = `alu_op_size'h0;
-        im_en = 1'b1;
+      reg_addr_b = op2; // op2 is the pointer
+      reg_addr_c = op3; // op3 is the register addr to load into
+      alu_op = `alu_op_size'h0;
+      im_en = 1'b1;
 		  reg_we = 1'b0;
-		  end
-		 LW2:begin
+		end
+		LW2:begin
 		  reg_addr_a = 4'hx; // dont care, the immed field is used
-        reg_addr_b = op2; // op2 is the pointer
-        reg_addr_c = op3; // op3 is the register addr to load into
-//        reg_we = 1'b1;
-        alu_op = `alu_op_size'h0;
-        im_en = 1'b1;
-        reg_we = 1'b0;
-		  end
-		 LW3:begin
+      reg_addr_b = op2; // op2 is the pointer
+      reg_addr_c = op3; // op3 is the register addr to load into
+      alu_op = `alu_op_size'h0;
+      im_en = 1'b1;
+      reg_we = 1'b0;
+		end
+		LW3:begin
 		  reg_addr_a = 4'hx; // dont care, the immed field is used
-        reg_addr_b = op2; // op2 is the pointer
-        reg_addr_c = op3; // op3 is the register addr to load into
-        reg_we = 1'b1;
-        alu_op = `alu_op_size'h0;
-        im_en = 1'b1;
-		  end
-      LT: begin
+      reg_addr_b = op2; // op2 is the pointer
+      reg_addr_c = op3; // op3 is the register addr to load into
+      reg_we = 1'b1;
+      alu_op = `alu_op_size'h0;
+      im_en = 1'b1;
+		end
+    LT: begin
 		  reg_addr_a = op1;
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
-        alu_op = `alu_op_size'h6;
-        im_en = 1'b0;
-		  end
-      NAND: begin
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
+      alu_op = `alu_op_size'h6;
+      im_en = 1'b0;
+		end
+    NAND: begin
 		  reg_addr_a = op1;
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
-        alu_op = `alu_op_size'h3;
-        im_en = 1'b0;
-		  end
-      DIV: begin 
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
+      alu_op = `alu_op_size'h3;
+      im_en = 1'b0;
+	  end
+    DIV: begin 
 		  reg_addr_a = op1;
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
-        alu_op = `alu_op_size'h4;
-        im_en = 1'b0;
-		  end
-      MOD: begin
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
+      alu_op = `alu_op_size'h4;
+      im_en = 1'b0;
+	  end
+    MOD: begin
 		  reg_addr_a = op1;
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
-        alu_op = `alu_op_size'h5;
-        im_en = 1'b0;
-		  end
-      LTE: begin
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
+      alu_op = `alu_op_size'h5;
+      im_en = 1'b0;
+		end
+    LTE: begin
 		  reg_addr_a = op1;
-        reg_addr_b = op2;
-        reg_addr_c = op3;
-        reg_we = 1'b1;
-        alu_op = `alu_op_size'h7;
-        im_en = 1'b0;
-		  end
-      BLT: begin
+      reg_addr_b = op2;
+      reg_addr_c = op3;
+      reg_we = 1'b1;
+      alu_op = `alu_op_size'h7;
+      im_en = 1'b0;
+		end
+    BLT: begin
 		  reg_addr_a = op3;
-        reg_addr_b = op2;
-        reg_addr_c = 4'hx;
-        reg_we = 1'b0;
-        alu_op = `alu_op_size'h6;
-        im_en = 1'b0;
-		  end
-      BLE: begin
+      reg_addr_b = op2;
+      reg_addr_c = 4'hx;
+      reg_we = 1'b0;
+      alu_op = `alu_op_size'h6;
+      im_en = 1'b0;
+		end
+    BLE: begin
 		  reg_addr_a = op3;
-        reg_addr_b = op2;
-        reg_addr_c = 4'hx;
-        reg_we = 1'b0;
-        alu_op = `alu_op_size'h7;
-        im_en = 1'b0;
-        end
-      BEQ: begin
+      reg_addr_b = op2;
+      reg_addr_c = 4'hx;
+      reg_we = 1'b0;
+      alu_op = `alu_op_size'h7;
+      im_en = 1'b0;
+    end
+    BEQ: begin
 		  reg_addr_a = op3;
-        reg_addr_b = op2;
-        reg_addr_c = 4'hx;
-        reg_we = 1'b0;
-        alu_op = `alu_op_size'h1;
-        im_en = 1'b0;
-		  end
-      JUMP: begin
+      reg_addr_b = op2;
+      reg_addr_c = 4'hx;
+      reg_we = 1'b0;
+      alu_op = `alu_op_size'h1;
+      im_en = 1'b0;
+		end
+    JUMP: begin
 		  reg_addr_a = 4'hf;
-        reg_addr_b = 4'hf;
-        reg_addr_c = 4'hf;
-        reg_we = 1'b0;
-		  alu_op = `alu_op_size'h0;
-		  im_en = 1'b0;
-		  end
-      JUMP2: begin
-		  reg_addr_a = 4'hf;
-        reg_addr_b = 4'hf;
-        reg_addr_c = 4'hf;
-        reg_we = 1'b0;
-		  alu_op = `alu_op_size'h0;
-		  im_en = 1'b0;
-		  end
-      BLT2: begin
-		  reg_addr_a = 4'hf;
-        reg_addr_b = 4'hf;
-        reg_addr_c = 4'hf;
-        reg_we = 1'b0;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
+      reg_we = 1'b0;
 		  alu_op = `alu_op_size'h0;
 		  im_en = 1'b0;
 		end
-      BLE2: begin
+    JUMP2: begin
 		  reg_addr_a = 4'hf;
-        reg_addr_b = 4'hf;
-        reg_addr_c = 4'hf;
-        reg_we = 1'b0;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
+      reg_we = 1'b0;
+		  alu_op = `alu_op_size'h0;
+		  im_en = 1'b0;
+		  end
+    BLT2: begin
+		  reg_addr_a = 4'hf;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
+      reg_we = 1'b0;
 		  alu_op = `alu_op_size'h0;
 		  im_en = 1'b0;
 		end
-      BEQ2: begin
+    BLE2: begin
 		  reg_addr_a = 4'hf;
-        reg_addr_b = 4'hf;
-        reg_addr_c = 4'hf;
-        reg_we = 1'b0;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
+      reg_we = 1'b0;
 		  alu_op = `alu_op_size'h0;
 		  im_en = 1'b0;
 		end
-		default: begin
+    BEQ2: begin
 		  reg_addr_a = 4'hf;
-        reg_addr_b = 4'hf;
-        reg_addr_c = 4'hf;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
+      reg_we = 1'b0;
+		  alu_op = `alu_op_size'h0;
+		  im_en = 1'b0;
+		end
+    BLT3: begin
+		  reg_addr_a = 4'hf;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
+		  reg_we = 1'b0;
+		  alu_op = `alu_op_size'h0;
+		  im_en = 1'b0;
+		end
+    BLE3: begin
+		  reg_addr_a = 4'hf;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
+		  reg_we = 1'b0;
+		  alu_op = `alu_op_size'h0;
+		  im_en = 1'b0;
+		end
+    BEQ3: begin
+		  reg_addr_a = 4'hf;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
+		  reg_we = 1'b0;
+		  alu_op = `alu_op_size'h0;
+		  im_en = 1'b0;
+		end
+
+    default: begin
+		  reg_addr_a = 4'hf;
+      reg_addr_b = 4'hf;
+      reg_addr_c = 4'hf;
 		  reg_we = 1'b0;
 		  alu_op = `alu_op_size'h0;
 		  im_en = 1'b0;
 		end
 		endcase
-
 end
 
 
