@@ -129,16 +129,18 @@ parameter BEQ3 = 5'd29;
 		    JUMP2:
 		      state <= FETCH;
         BLT2:
+          //state <= FETCH;
           state <= BLT3;
         BLT3:
           state <= FETCH;
         BLE2:
-		      //state <= BLE3;
-			    state <= FETCH;
+		      state <= BLE3;
+			    // state <= FETCH;
 		    BLE3:
           state <= FETCH;  
         BEQ2:
-          state <= BEQ3;
+          state <= FETCH;
+          // state <= BEQ3;
         BEQ3:
           state <= FETCH;
         default:
@@ -503,9 +505,9 @@ parameter BEQ3 = 5'd29;
           pc <= pc + {12'd0, im};
 			    sram_addr <= pc + {12'd0, im};
         end else begin
-          pc <= pc + 16'd1;
-          // sram_addr <= sram_addr;
-			    sram_addr <= pc + 16'd1;// 2AM change = uncomment this line
+          pc <= pc; // + 16'd1;
+          sram_addr <= sram_addr;
+			    // sram_addr <= pc + 16'd1;// 2AM change = uncomment this line
 		    end
 		  instruction <= instruction;
       sram_we_n <= 1'b1;
