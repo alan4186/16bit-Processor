@@ -25,8 +25,8 @@ control_fsm control_fsm0( clk, rst, run_n, ram_q, reg_data_a, reg_data_b, alu_st
 								  sram_we_n, reg_we, alu_operator, reg_addr_a, reg_addr_b,
 								  reg_addr_c, alu_op_a, reg_data_c, ram_addr, ram_data);
 
-
-main_memory_sxm_d main_memory0(ram_addr[7:0], clk, ram_data, ram_wren, ram_q);								  
+main_memory main_memory0(ram_addr[7:0], clk, ram_data, ram_wren, ram_q);								  
+//main_memory_sxm_d main_memory0(ram_addr[7:0], clk, ram_data, ram_wren, ram_q);								  
 //main_memory_sxm main_memory0(ram_addr[7:0], clk, ram_data, ram_wren, ram_q);								  
 //main_memory_ram_test main_memory0(ram_addr[7:0], clk, ram_data, ram_wren, ram_q);
 //main_memory_ram_test2 main_memory0(ram_addr[7:0], clk, ram_data, ram_wren, ram_q);
